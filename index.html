@@ -115,8 +115,8 @@
         }
       });
 
-      // 顯示平面名片與光影函式
-      window.showImage = function(fileName) {
+      // 【優化】：顯示平面名片與光影函式 (改為接收資源 ID)
+      window.showImage = function(assetId) {
         const plane = document.querySelector('#display-plane');
         const model = document.querySelector('#display-model');
         const shadow = document.querySelector('#glow-shadow');
@@ -124,8 +124,8 @@
         if(model) model.setAttribute('visible', false);
         
         if(plane) {
-          // 【路徑修正】：加上 assets/ 前綴
-          if(fileName) plane.setAttribute('src', 'assets/' + fileName);
+          // 直接呼叫已預載的資源 ID，徹底杜絕路徑錯誤
+          if(assetId) plane.setAttribute('src', assetId);
           plane.setAttribute('visible', true);
           if(shadow) shadow.setAttribute('visible', true);
           
@@ -140,8 +140,8 @@
         }
       };
 
-      // 顯示 3D 模型函式
-      window.show3D = function(fileName) {
+      // 【優化】：顯示 3D 模型函式 (改為接收資源 ID)
+      window.show3D = function(assetId) {
         const plane = document.querySelector('#display-plane');
         const model = document.querySelector('#display-model');
         const shadow = document.querySelector('#glow-shadow');
@@ -150,8 +150,8 @@
         if(shadow) shadow.setAttribute('visible', false);
         
         if(model) {
-          // 【路徑修正】：加上 assets/ 前綴
-          if(fileName) model.setAttribute('gltf-model', 'assets/' + fileName);
+          // 直接呼叫已預載的資源 ID
+          if(assetId) model.setAttribute('gltf-model', assetId);
           model.setAttribute('visible', true);
           model.setAttribute('scale', '0.5 0.5 0.5'); 
           model.setAttribute('rotation', '0 0 0'); 
@@ -162,7 +162,8 @@
       AFRAME.registerComponent('marker-handler', {
         init: function () {
           this.el.addEventListener('markerFound', () => {
-            window.showImage('my-card.jpg'); 
+            // 改為傳遞資源 ID
+            window.showImage('#card-img'); 
           });
         }
       });
@@ -171,13 +172,13 @@
 
   <body style="margin: 0; overflow: hidden;">
     
-    <audio id="click-sound" src="assets/click.mp3" preload="auto"></audio>
+    <audio id="click-sound" src="./assets/click.mp3" preload="auto"></audio>
 
     <div id="ui-container">
-      <div class="btn" onclick="playSound(); showImage('my-card.jpg')">🖼️ 平面名片</div>
+      <div class="btn" onclick="playSound(); showImage('#card-img')">🖼️ 平面名片</div>
       <div class="btn" onclick="playSound(); window.open('https://www.facebook.com/WeiZiArt', '_blank')"> 個人FB介紹</div>
       <div class="btn" onclick="playSound(); window.open('https://www.youtube.com/@ParisWeizi', '_blank')"> 個人影片</div>
-      <div class="btn" onclick="playSound(); show3D('star.glb')">🤖 3D 動態</div>
+      <div class="btn" onclick="playSound(); show3D('#star-model')">🤖 3D 動態</div>
     </div>
 
     <a-scene 
@@ -187,16 +188,16 @@
       vr-mode-ui="enabled: false">
       
       <a-assets>
-        <img id="card-img" src="assets/my-card.jpg">
-        <a-asset-item id="star-model" src="assets/star.glb"></a-asset-item>
+        <img id="card-img" src="./assets/my-card.jpg">
+        <a-asset-item id="star-model" src="./assets/star.glb"></a-asset-item>
       </a-assets>
 
-      <a-marker marker-handler type="pattern" url="assets/weizi.patt" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+      <a-marker marker-handler type="pattern" url="./assets/weizi.patt" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
       </a-marker>
 
       <a-light type="ambient" color="#ffffff" intensity="1.5"></a-light>
       
-    <a-entity camera look-controls="enabled: false">
+     <a-entity camera look-controls="enabled: false">
         
         <a-plane id="display-plane" 
                  touch-controls
