@@ -44,11 +44,11 @@
     </style>
 
     <script>
-      // 【新增】：音效播放控制器
+      // 音效播放控制器
       window.playSound = function() {
         const sound = document.getElementById('click-sound');
         if(sound) {
-          sound.currentTime = 0; // 確保每次連點都能從頭發出聲音，不會卡頓
+          sound.currentTime = 0; 
           sound.play().catch(e => console.log("等待使用者互動後播放音效"));
         }
       };
@@ -60,7 +60,6 @@
           this.touchMove = this.touchMove.bind(this);
           this.touchEnd = this.touchEnd.bind(this);
 
-          // 將觸控事件綁定到整個 AR 畫布上
           this.el.sceneEl.canvas.addEventListener('touchstart', this.touchStart);
           this.el.sceneEl.canvas.addEventListener('touchmove', this.touchMove);
           this.el.sceneEl.canvas.addEventListener('touchend', this.touchEnd);
@@ -190,7 +189,7 @@
         <a-asset-item id="star-model" src="assets/star.glb"></a-asset-item>
       </a-assets>
 
-      <a-marker marker-handler type="pattern" url="assets/pattern-qr.ioi.tw.patt" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+      <a-marker marker-handler type="pattern" url="assets/weizi.patt" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
       </a-marker>
 
       <a-light type="ambient" color="#ffffff" intensity="1.5"></a-light>
