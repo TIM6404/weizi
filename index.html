@@ -124,6 +124,7 @@
         if(model) model.setAttribute('visible', false);
         
         if(plane) {
+          // 【路徑修正】：加上 assets/ 前綴
           if(fileName) plane.setAttribute('src', 'assets/' + fileName);
           plane.setAttribute('visible', true);
           if(shadow) shadow.setAttribute('visible', true);
@@ -149,6 +150,7 @@
         if(shadow) shadow.setAttribute('visible', false);
         
         if(model) {
+          // 【路徑修正】：加上 assets/ 前綴
           if(fileName) model.setAttribute('gltf-model', 'assets/' + fileName);
           model.setAttribute('visible', true);
           model.setAttribute('scale', '0.5 0.5 0.5'); 
