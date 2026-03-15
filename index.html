@@ -57,15 +57,22 @@
           this.touchMove = this.touchMove.bind(this);
           this.touchEnd = this.touchEnd.bind(this);
 
-          this.el.sceneEl.canvas.addEventListener('touchstart', this.touchStart);
-          this.el.sceneEl.canvas.addEventListener('touchmove', this.touchMove);
-          this.el.sceneEl.canvas.addEventListener('touchend', this.touchEnd);
+          // 【關鍵核心修復】：改綁定到 window，徹底消滅 canvas 尚未載入導致的程式全毀當機
+          window.addEventListener('touchstart', this.touchStart);
+          window.addEventListener('touchmove', this.touchMove);
+          window.addEventListener('touchend', this.touchEnd);
 
           this.isDragging = false;
           this.previousPosition = { x: 0, y: 0 };
           this.isPinching = false;
           this.initialDistance = 0;
           this.initialScale = { x: 1, y: 1, z: 1 };
+        },
+        remove: function () {
+          // 安全機制：當元件被移除時，釋放記憶體
+          window.removeEventListener('touchstart', this.touchStart);
+          window.removeEventListener('touchmove', this.touchMove);
+          window.removeEventListener('touchend', this.touchEnd);
         },
         touchStart: function (evt) {
           if (!this.el.getAttribute('visible')) return;
@@ -146,7 +153,6 @@
         if(model) {
           if(assetId) model.setAttribute('gltf-model', assetId);
           model.setAttribute('visible', true);
-          // 【模型比例安全設定】：改為 0.1
           model.setAttribute('scale', '0.1 0.1 0.1'); 
           model.setAttribute('rotation', '0 0 0'); 
         }
