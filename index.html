@@ -21,17 +21,23 @@
     </style>
 
     <script>
-      // 極簡的 UI 切換邏輯
+      // 完美加回音效播放引擎
+      function playSound() {
+        const sound = document.getElementById('click-sound');
+        if(sound) {
+          sound.currentTime = 0; 
+          sound.play().catch(e => console.log("等待使用者互動後播放音效"));
+        }
+      }
+
       function showItem(itemId) {
         document.getElementById('card-wrapper').setAttribute('visible', itemId === 'card');
         document.getElementById('model-wrapper').setAttribute('visible', itemId === 'model');
         
-        // 切換時觸發彈出動畫
         if(itemId === 'card') document.getElementById('card-img-entity').emit('pop');
         if(itemId === 'model') document.getElementById('model-entity').emit('pop');
       }
 
-      // 極簡的單指旋轉控制 (將控制與動畫徹底分離，避免衝突)
       AFRAME.registerComponent('simple-touch', {
         init: function () {
           this.touchStart = this.touchStart.bind(this);
@@ -62,11 +68,13 @@
 
   <body style="margin: 0; overflow: hidden;">
     
+    <audio id="click-sound" src="./assets/click.mp3" preload="auto"></audio>
+
     <div id="ui-container">
-      <div class="btn" onclick="showItem('card')">🖼️ 平面名片</div>
-      <div class="btn" onclick="window.open('https://www.facebook.com/WeiZiArt', '_blank')">FB介紹</div>
-      <div class="btn" onclick="window.open('https://www.youtube.com/@ParisWeizi', '_blank')">影片</div>
-      <div class="btn" onclick="showItem('model')">🤖 3D動態</div>
+      <div class="btn" onclick="playSound(); showItem('card')">🖼️ 平面名片</div>
+      <div class="btn" onclick="playSound(); window.open('https://www.facebook.com/WeiZiArt', '_blank')">FB介紹</div>
+      <div class="btn" onclick="playSound(); window.open('https://www.youtube.com/@ParisWeizi', '_blank')">影片</div>
+      <div class="btn" onclick="playSound(); showItem('model')">🤖 3D動態</div>
     </div>
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="logarithmicDepthBuffer: true;">
@@ -80,24 +88,22 @@
       <a-light type="ambient" intensity="1.5"></a-light>
       
       <a-entity camera look-controls="enabled: false">
-        
         <a-entity position="0 0 -3">
           
           <a-entity id="card-wrapper" simple-touch visible="true">
-             <a-image id="card-img-entity" src="#card-texture" width="2.4" height="1.6" position="0 0 0"
+             <a-image id="card-img-entity" src="#card-texture" width="1.2" height="0.8" position="0 0 0"
                       animation__pop="property: scale; from: 0 0 0; to: 1 1 1; dur: 800; easing: easeOutElastic; startEvents: pop"
                       animation__float="property: position; from: 0 -0.1 0; to: 0 0.1 0; dir: alternate; dur: 1500; loop: true">
              </a-image>
           </a-entity>
 
           <a-entity id="model-wrapper" simple-touch visible="false">
-             <a-entity id="model-entity" gltf-model="#model-data" scale="0.8 0.8 0.8" position="0 -0.5 0"
-                       animation__pop="property: scale; from: 0 0 0; to: 0.8 0.8 0.8; dur: 800; easing: easeOutElastic; startEvents: pop">
+             <a-entity id="model-entity" gltf-model="#model-data" scale="0.4 0.4 0.4" position="0 -0.5 0"
+                       animation__pop="property: scale; from: 0 0 0; to: 0.4 0.4 0.4; dur: 800; easing: easeOutElastic; startEvents: pop">
              </a-entity>
           </a-entity>
 
         </a-entity>
-
       </a-entity>
     </a-scene>
   </body>
