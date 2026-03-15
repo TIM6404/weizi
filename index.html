@@ -9,7 +9,6 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
 
     <style>
-      /* 霧玻璃 UI 容器與按鈕樣式設定 */
       #ui-container {
         position: absolute;
         bottom: 20px;
@@ -147,8 +146,8 @@
         if(model) {
           if(assetId) model.setAttribute('gltf-model', assetId);
           model.setAttribute('visible', true);
-          // 【核心修正 1】：JavaScript 裡也要同步把模型的預設比例縮小到 0.05
-          model.setAttribute('scale', '0.05 0.05 0.05'); 
+          // 【模型比例安全設定】：改為 0.1
+          model.setAttribute('scale', '0.1 0.1 0.1'); 
           model.setAttribute('rotation', '0 0 0'); 
         }
       };
@@ -195,30 +194,30 @@
         <a-plane id="display-plane" 
                  touch-controls
                  src="#card-img" 
-                 position="0 0.02 -0.1" 
+                 position="0 0.05 -0.5" 
                  rotation="0 0 0" 
-                 width="0.15" 
-                 height="0.1"
+                 width="0.3" 
+                 height="0.2"
                  visible="false"
                  animation__scale="property: scale; from: 0 0 0; to: 1 1 1; dur: 1000; easing: easeOutElastic; startEvents: playScale"
-                 animation__float="property: position; from: 0 0.02 -0.1; to: 0 0.03 -0.1; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
+                 animation__float="property: position; from: 0 0.05 -0.5; to: 0 0.07 -0.5; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
         </a-plane>
 
         <a-plane id="glow-shadow"
-                 width="0.15" height="0.1"
+                 width="0.3" height="0.2"
                  rotation="-90 0 0" 
-                 position="0 -0.05 -0.15" 
-                 material="color: #0088ff; transparent: true; opacity: 0.8; shader: flat;"
+                 position="0 -0.15 -0.55" 
+                 material="color: #0088ff; transparent: true; opacity: 0.6; shader: flat;"
                  visible="false"
-                 animation__scale="property: scale; from: 1 1 1; to: 0.6 0.6 0.6; dir: alternate; dur: 1000; loop: true; startEvents: playFloat"
-                 animation__opacity="property: opacity; from: 0.8; to: 0.2; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
+                 animation__scale="property: scale; from: 1 1 1; to: 0.7 0.7 0.7; dir: alternate; dur: 1000; loop: true; startEvents: playFloat"
+                 animation__opacity="property: opacity; from: 0.6; to: 0.1; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
         </a-plane>
 
         <a-entity id="display-model" 
                   touch-controls
                   gltf-model="#star-model" 
-                  scale="0.05 0.05 0.05" 
-                  position="0 -0.02 -0.1"
+                  scale="0.1 0.1 0.1" 
+                  position="0 -0.05 -0.5"
                   visible="false"
                   animation-mixer>
         </a-entity>
