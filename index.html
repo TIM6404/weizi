@@ -21,12 +21,15 @@
     </style>
 
     <script>
-      // 完美加回音效播放引擎
       function playSound() {
         const sound = document.getElementById('click-sound');
         if(sound) {
+          sound.volume = 1.0;
           sound.currentTime = 0; 
-          sound.play().catch(e => console.log("等待使用者互動後播放音效"));
+          let playPromise = sound.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(error => { console.log("瀏覽器安全阻擋，請確認網址為 https 或由本地伺服器開啟"); });
+          }
         }
       }
 
@@ -42,25 +45,62 @@
         init: function () {
           this.touchStart = this.touchStart.bind(this);
           this.touchMove = this.touchMove.bind(this);
+          this.touchEnd = this.touchEnd.bind(this);
           window.addEventListener('touchstart', this.touchStart);
           window.addEventListener('touchmove', this.touchMove);
+          window.addEventListener('touchend', this.touchEnd);
+          
           this.isDragging = false;
+          this.isPinching = false;
           this.previousPosition = { x: 0, y: 0 };
+          this.initialDistance = 0;
+          this.initialScale = { x: 1, y: 1, z: 1 };
+        },
+        getDistance: function (touches) {
+          const dx = touches[0].screenX - touches[1].screenX;
+          const dy = touches[0].screenY - touches[1].screenY;
+          return Math.sqrt(dx * dx + dy * dy);
         },
         touchStart: function (evt) {
           if (!this.el.getAttribute('visible')) return;
+          
+          const targetEl = this.el.firstElementChild; 
+          if (!targetEl) return;
+
           if (evt.touches.length === 1) {
             this.isDragging = true;
             this.previousPosition = { x: evt.touches[0].screenX, y: evt.touches[0].screenY };
+          } else if (evt.touches.length === 2) {
+            this.isPinching = true;
+            this.initialDistance = this.getDistance(evt.touches);
+            this.initialScale = targetEl.object3D.scale.clone();
           }
         },
         touchMove: function (evt) {
-          if (!this.el.getAttribute('visible') || !this.isDragging) return;
-          const deltaX = evt.touches[0].screenX - this.previousPosition.x;
-          const deltaY = evt.touches[0].screenY - this.previousPosition.y;
-          this.el.object3D.rotation.y += deltaX * 0.01;
-          this.el.object3D.rotation.x += deltaY * 0.01;
-          this.previousPosition = { x: evt.touches[0].screenX, y: evt.touches[0].screenY };
+          if (!this.el.getAttribute('visible')) return;
+          
+          const targetEl = this.el.firstElementChild;
+          if (!targetEl) return;
+
+          if (this.isDragging && evt.touches.length === 1) {
+            const deltaX = evt.touches[0].screenX - this.previousPosition.x;
+            const deltaY = evt.touches[0].screenY - this.previousPosition.y;
+            targetEl.object3D.rotation.y += deltaX * 0.01;
+            targetEl.object3D.rotation.x += deltaY * 0.01;
+            this.previousPosition = { x: evt.touches[0].screenX, y: evt.touches[0].screenY };
+          } else if (this.isPinching && evt.touches.length === 2) {
+            const currentDistance = this.getDistance(evt.touches);
+            const scaleFactor = currentDistance / this.initialDistance;
+            targetEl.object3D.scale.set(
+              this.initialScale.x * scaleFactor,
+              this.initialScale.y * scaleFactor,
+              this.initialScale.z * scaleFactor
+            );
+          }
+        },
+        touchEnd: function (evt) {
+          if (evt.touches.length < 2) this.isPinching = false;
+          if (evt.touches.length === 0) this.isDragging = false;
         }
       });
     </script>
@@ -91,15 +131,15 @@
         <a-entity position="0 0 -3">
           
           <a-entity id="card-wrapper" simple-touch visible="true">
-             <a-image id="card-img-entity" src="#card-texture" width="1.2" height="0.8" position="0 0 0"
+             <a-image id="card-img-entity" src="#card-texture" width="0.9" height="0.6" position="0 0 0"
                       animation__pop="property: scale; from: 0 0 0; to: 1 1 1; dur: 800; easing: easeOutElastic; startEvents: pop"
                       animation__float="property: position; from: 0 -0.1 0; to: 0 0.1 0; dir: alternate; dur: 1500; loop: true">
              </a-image>
           </a-entity>
 
           <a-entity id="model-wrapper" simple-touch visible="false">
-             <a-entity id="model-entity" gltf-model="#model-data" scale="0.4 0.4 0.4" position="0 -0.5 0"
-                       animation__pop="property: scale; from: 0 0 0; to: 0.4 0.4 0.4; dur: 800; easing: easeOutElastic; startEvents: pop">
+             <a-entity id="model-entity" gltf-model="#model-data" scale="0.5 0.5 0.5" position="0 -0.5 0"
+                       animation__pop="property: scale; from: 0 0 0; to: 0.5 0.5 0.5; dur: 800; easing: easeOutElastic; startEvents: pop">
              </a-entity>
           </a-entity>
 
