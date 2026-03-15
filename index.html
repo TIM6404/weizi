@@ -44,7 +44,6 @@
     </style>
 
     <script>
-      // 音效播放控制器
       window.playSound = function() {
         const sound = document.getElementById('click-sound');
         if(sound) {
@@ -53,7 +52,6 @@
         }
       };
 
-      // 自訂手勢控制模組：單指旋轉、雙指縮放
       AFRAME.registerComponent('touch-controls', {
         init: function () {
           this.touchStart = this.touchStart.bind(this);
@@ -115,7 +113,6 @@
         }
       });
 
-      // 【優化】：顯示平面名片與光影函式 (改為接收資源 ID)
       window.showImage = function(assetId) {
         const plane = document.querySelector('#display-plane');
         const model = document.querySelector('#display-model');
@@ -124,7 +121,6 @@
         if(model) model.setAttribute('visible', false);
         
         if(plane) {
-          // 直接呼叫已預載的資源 ID，徹底杜絕路徑錯誤
           if(assetId) plane.setAttribute('src', assetId);
           plane.setAttribute('visible', true);
           if(shadow) shadow.setAttribute('visible', true);
@@ -140,7 +136,6 @@
         }
       };
 
-      // 【優化】：顯示 3D 模型函式 (改為接收資源 ID)
       window.show3D = function(assetId) {
         const plane = document.querySelector('#display-plane');
         const model = document.querySelector('#display-model');
@@ -150,19 +145,17 @@
         if(shadow) shadow.setAttribute('visible', false);
         
         if(model) {
-          // 直接呼叫已預載的資源 ID
           if(assetId) model.setAttribute('gltf-model', assetId);
           model.setAttribute('visible', true);
-          model.setAttribute('scale', '0.5 0.5 0.5'); 
+          // 【核心修正 1】：JavaScript 裡也要同步把模型的預設比例縮小到 0.05
+          model.setAttribute('scale', '0.05 0.05 0.05'); 
           model.setAttribute('rotation', '0 0 0'); 
         }
       };
 
-      // Marker 僅作為最初的「觸發開關」
       AFRAME.registerComponent('marker-handler', {
         init: function () {
           this.el.addEventListener('markerFound', () => {
-            // 改為傳遞資源 ID
             window.showImage('#card-img'); 
           });
         }
@@ -202,19 +195,19 @@
         <a-plane id="display-plane" 
                  touch-controls
                  src="#card-img" 
-                 position="0 0.05 -0.1" 
+                 position="0 0.02 -0.1" 
                  rotation="0 0 0" 
-                 width="1.5" 
-                 height="1"
+                 width="0.15" 
+                 height="0.1"
                  visible="false"
                  animation__scale="property: scale; from: 0 0 0; to: 1 1 1; dur: 1000; easing: easeOutElastic; startEvents: playScale"
-                 animation__float="property: position; from: 0 0.05 -0.1; to: 0 0.08 -0.1; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
+                 animation__float="property: position; from: 0 0.02 -0.1; to: 0 0.03 -0.1; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
         </a-plane>
 
         <a-plane id="glow-shadow"
-                 width="1.5" height="1"
+                 width="0.15" height="0.1"
                  rotation="-90 0 0" 
-                 position="0 -0.2 -0.15" 
+                 position="0 -0.05 -0.15" 
                  material="color: #0088ff; transparent: true; opacity: 0.8; shader: flat;"
                  visible="false"
                  animation__scale="property: scale; from: 1 1 1; to: 0.6 0.6 0.6; dir: alternate; dur: 1000; loop: true; startEvents: playFloat"
@@ -224,8 +217,8 @@
         <a-entity id="display-model" 
                   touch-controls
                   gltf-model="#star-model" 
-                  scale="0.5 0.5 0.5" 
-                  position="0 -0.05 -0.1"
+                  scale="0.05 0.05 0.05" 
+                  position="0 -0.02 -0.1"
                   visible="false"
                   animation-mixer>
         </a-entity>
