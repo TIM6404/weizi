@@ -47,17 +47,17 @@
         const sound = document.getElementById('click-sound');
         if(sound) {
           sound.currentTime = 0; 
-          sound.play().catch(e => console.log("等待使用者互動後播放音效"));
+          sound.play().catch(e => console.log("音效需等待互動"));
         }
       };
 
+      // 手勢控制：嚴格規定只有在物件「可見 (visible)」時，手指觸碰才會有反應
       AFRAME.registerComponent('touch-controls', {
         init: function () {
           this.touchStart = this.touchStart.bind(this);
           this.touchMove = this.touchMove.bind(this);
           this.touchEnd = this.touchEnd.bind(this);
 
-          // 【關鍵核心修復】：改綁定到 window，徹底消滅 canvas 尚未載入導致的程式全毀當機
           window.addEventListener('touchstart', this.touchStart);
           window.addEventListener('touchmove', this.touchMove);
           window.addEventListener('touchend', this.touchEnd);
@@ -68,14 +68,8 @@
           this.initialDistance = 0;
           this.initialScale = { x: 1, y: 1, z: 1 };
         },
-        remove: function () {
-          // 安全機制：當元件被移除時，釋放記憶體
-          window.removeEventListener('touchstart', this.touchStart);
-          window.removeEventListener('touchmove', this.touchMove);
-          window.removeEventListener('touchend', this.touchEnd);
-        },
         touchStart: function (evt) {
-          if (!this.el.getAttribute('visible')) return;
+          if (!this.el.getAttribute('visible')) return; 
           
           if (evt.touches.length === 1) {
             this.isDragging = true;
@@ -153,11 +147,26 @@
         if(model) {
           if(assetId) model.setAttribute('gltf-model', assetId);
           model.setAttribute('visible', true);
-          model.setAttribute('scale', '0.1 0.1 0.1'); 
+          // 搭配 1 公尺距離，模型預設比例設為 0.2
+          model.setAttribute('scale', '0.2 0.2 0.2'); 
           model.setAttribute('rotation', '0 0 0'); 
         }
       };
 
+      // 【全新腳本】：進入網頁後自動觸發名片
+      AFRAME.registerComponent('auto-start-handler', {
+        init: function () {
+          // 等待場景與相機準備就緒
+          this.el.sceneEl.addEventListener('loaded', () => {
+            // 給予 0.5 秒緩衝讓相機畫面穩定，接著自動彈出名片
+            setTimeout(() => {
+              window.showImage('#card-img');
+            }, 500);
+          });
+        }
+      });
+
+      // 保留掃描標記觸發的功能，作為雙重保險
       AFRAME.registerComponent('marker-handler', {
         init: function () {
           this.el.addEventListener('markerFound', () => {
@@ -168,7 +177,7 @@
     </script>
   </head>
 
-  <body style="margin: 0; overflow: hidden;">
+  <body style="margin: 0; overflow: hidden;" auto-start-handler>
     
     <audio id="click-sound" src="./assets/click.mp3" preload="auto"></audio>
 
@@ -185,7 +194,7 @@
       renderer="logarithmicDepthBuffer: true; colorManagement: true;"
       vr-mode-ui="enabled: false">
       
-      <a-assets>
+      <a-assets timeout="3000">
         <img id="card-img" src="./assets/my-card.jpg">
         <a-asset-item id="star-model" src="./assets/star.glb"></a-asset-item>
       </a-assets>
@@ -200,19 +209,19 @@
         <a-plane id="display-plane" 
                  touch-controls
                  src="#card-img" 
-                 position="0 0.05 -0.5" 
+                 position="0 0.1 -1" 
                  rotation="0 0 0" 
-                 width="0.3" 
-                 height="0.2"
+                 width="0.6" 
+                 height="0.4"
                  visible="false"
                  animation__scale="property: scale; from: 0 0 0; to: 1 1 1; dur: 1000; easing: easeOutElastic; startEvents: playScale"
-                 animation__float="property: position; from: 0 0.05 -0.5; to: 0 0.07 -0.5; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
+                 animation__float="property: position; from: 0 0.1 -1; to: 0 0.15 -1; dir: alternate; dur: 1000; loop: true; startEvents: playFloat">
         </a-plane>
 
         <a-plane id="glow-shadow"
-                 width="0.3" height="0.2"
+                 width="0.6" height="0.4"
                  rotation="-90 0 0" 
-                 position="0 -0.15 -0.55" 
+                 position="0 -0.3 -1.1" 
                  material="color: #0088ff; transparent: true; opacity: 0.6; shader: flat;"
                  visible="false"
                  animation__scale="property: scale; from: 1 1 1; to: 0.7 0.7 0.7; dir: alternate; dur: 1000; loop: true; startEvents: playFloat"
@@ -222,8 +231,8 @@
         <a-entity id="display-model" 
                   touch-controls
                   gltf-model="#star-model" 
-                  scale="0.1 0.1 0.1" 
-                  position="0 -0.05 -0.5"
+                  scale="0.2 0.2 0.2" 
+                  position="0 -0.1 -1"
                   visible="false"
                   animation-mixer>
         </a-entity>
