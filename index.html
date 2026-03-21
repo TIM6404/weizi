@@ -21,6 +21,22 @@
     </style>
 
     <script>
+      // ==========================================
+      // 【插入點 1】：專屬數據追蹤引擎放在 <script> 的最前面
+      // ==========================================
+      function trackInteraction(actionName) {
+        const currentCardId = 'WeiZi_Card_01'; // 你的名片專屬代號
+        
+        // 【已精確修復】：為網址加上單引號，將其轉換為標準字串
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbzDL4JaeiVHjYBOJeMMkZPuP_3BJudwYBTQ4l15BSDaj25kt6n0ZR4GeExxRlc_gfNFKw/exec'; 
+        
+        const requestUrl = scriptUrl + '?cardId=' + encodeURIComponent(currentCardId) + '&action=' + encodeURIComponent(actionName);
+        
+        fetch(requestUrl, { mode: 'no-cors' })
+          .catch(error => console.log("數據紀錄連線異常"));
+      }
+
+      // 以下保留你原本的功能
       function playSound() {
         const sound = document.getElementById('click-sound');
         if(sound) {
@@ -28,7 +44,7 @@
           sound.currentTime = 0; 
           let playPromise = sound.play();
           if (playPromise !== undefined) {
-            playPromise.catch(error => { console.log("瀏覽器安全阻擋，請確認網址為 https 或由本地伺服器開啟"); });
+            playPromise.catch(error => { console.log("瀏覽器安全阻擋"); });
           }
         }
       }
@@ -111,10 +127,10 @@
     <audio id="click-sound" src="./assets/click.mp3" preload="auto"></audio>
 
     <div id="ui-container">
-      <div class="btn" onclick="playSound(); showItem('card')">🖼️ 平面名片</div>
-      <div class="btn" onclick="playSound(); window.open('https://www.facebook.com/WeiZiArt', '_blank')">FB介紹</div>
-      <div class="btn" onclick="playSound(); window.open('https://www.youtube.com/@ParisWeizi', '_blank')">影片</div>
-      <div class="btn" onclick="playSound(); showItem('model')">🤖 3D動態</div>
+      <div class="btn" onclick="playSound(); trackInteraction('開啟_平面名片'); showItem('card')">🖼️ 平面名片</div>
+      <div class="btn" onclick="playSound(); trackInteraction('點擊_FB介紹'); window.open('https://www.facebook.com/WeiZiArt', '_blank')">FB介紹</div>
+      <div class="btn" onclick="playSound(); trackInteraction('點擊_個人影片'); window.open('https://www.youtube.com/@ParisWeizi', '_blank')">影片</div>
+      <div class="btn" onclick="playSound(); trackInteraction('開啟_3D動態'); showItem('model')">🤖 3D動態</div>
     </div>
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="logarithmicDepthBuffer: true;">
